@@ -1,0 +1,115 @@
+/* Services Intro Section */
+.services-intro { 
+  text-align: center; 
+  margin-bottom: var(--space-16);
+}
+
+.services-intro .kicker {
+  display: inline-flex; 
+  align-items: center; 
+  gap: .5rem;
+  padding: .35rem .8rem; 
+  border-radius: 999px; 
+  margin: 0 auto 12px;
+  background: rgba(0,224,198,.12); 
+  color: #00E0C6; 
+  border: 1px solid rgba(0,224,198,.35);
+}
+
+.section-title {
+  font-family: Sora, system-ui, sans-serif;
+  font-size: clamp(2rem, 4.2vw, 3.2rem); 
+  line-height: 1.12; 
+  letter-spacing: .2px;
+  margin: 6px auto 10px; 
+  max-width: 22ch;
+}
+
+.section-title .accent { 
+  color: #00E0C6; 
+}
+
+.section-subtitle { 
+  color: var(--color-text-secondary); 
+  max-width: 68ch; 
+  margin: 0 auto; 
+}
+
+.nowrap { 
+  white-space: nowrap; 
+}
+
+/* Services Grid Layout */
+.services-grid { 
+  display: grid; 
+  grid-template-columns: repeat(3, minmax(260px, 1fr)); 
+  gap: var(--space-8); 
+  justify-items: stretch; 
+}
+
+.service-card { 
+  text-align: center; 
+}
+
+.service-card ul { 
+  display: inline-block; 
+  text-align: left; 
+}
+
+/* Center the 4th card (Marketing Assets) on desktop/tablet */
+@media (min-width: 900px) { 
+  .services-grid > .service-card:nth-child(4) { 
+    grid-column: 2; 
+  } 
+}
+
+@media (max-width: 899px) { 
+  .services-grid { 
+    grid-template-columns: repeat(2, minmax(260px, 1fr)); 
+    justify-content: center; 
+  } 
+}
+
+@media (max-width: 599px) { 
+  .services-grid { 
+    grid-template-columns: 1fr; 
+  } 
+}
+
+/* Recent Work Section */
+.recent .section-title, 
+.recent .section-subtitle { 
+  text-align: center; 
+}
+
+.recent .pf-filter { 
+  display: flex; 
+  justify-content: center; 
+  gap: .6rem; 
+  flex-wrap: wrap; 
+}
+
+.recent .pf-grid { 
+  justify-content: center; 
+}
+
+/* Footer Layout */
+.footer-cols { 
+  display: grid; 
+  grid-template-columns: 1.2fr 1fr 1fr; 
+  gap: 2rem; 
+  align-items: start; 
+}
+
+.footer-section.col-right { 
+  text-align: right; 
+}
+
+@media (max-width: 800px) {
+  .footer-cols { 
+    grid-template-columns: 1fr; 
+  }
+  .footer-section.col-right { 
+    text-align: left; 
+  }
+}
