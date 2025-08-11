@@ -254,22 +254,78 @@ function setupPortfolioFilter() {
 }
 
 // ==========================================================================
-// ROI Calculator
+// Enhanced Website ROI Calculator
 // ==========================================================================
 
 function setupROICalculator() {
-  const leadsInput = document.getElementById('leads');
-  const closeRateInput = document.getElementById('close-rate');
-  const avgSaleInput = document.getElementById('avg-sale');
-  const costInput = document.getElementById('cost');
+  const inputs = document.querySelectorAll('#current-visitors, #inquiry-rate, #close-rate, #avg-sale');
   const resetBtn = document.getElementById('reset-calc');
-  
-  const monthlyRevenueDisplay = document.getElementById('monthly-revenue');
-  const annualRevenueDisplay = document.getElementById('annual-revenue');
-  const roiPercentageDisplay = document.getElementById('roi-percentage');
-  const roiCard = document.getElementById('roi-card');
 
-  if (!leadsInput || !closeRateInput || !avgSaleInput) return;
+  // Current business elements
+  const currentVisitors = document.getElementById('current-monthly-visitors');
+  const currentInquiries = document.getElementById('current-inquiries');
+  const currentCustomers = document.getElementById('current-customers');
+  const currentRevenue = document.getElementById('current-revenue');
+
+  // Website business elements
+  const websiteVisitors = document.getElementById('website-monthly-visitors');
+  const websiteInquiries = document.getElementById('website-inquiries');
+  const websiteCustomers = document.getElementById('website-customers');
+  const websiteRevenue = document.getElementById('website-revenue');
+
+  // Summary elements
+  const additionalRevenue = document.getElementById('additional-revenue');
+  const paybackPeriod = document.getElementById('payback-period');
+
+  // Check if elements exist before proceeding
+  if (!inputs.length) return;
+
+  function calculateWebsiteROI() {
+    const visitors = parseFloat(document.getElementById('current-visitors').value) || 0;
+    const inquiryRate = parseFloat(document.getElementById('inquiry-rate').value) || 0;
+    const closeRate = parseFloat(document.getElementById('close-rate').value) || 0;
+    const avgSale = parseFloat(document.getElementById('avg-sale').value) || 0;
+
+    // Current business calculations
+    const currentInquiriesNum = visitors * (inquiryRate / 100);
+    const currentCustomersNum = currentInquiriesNum * (closeRate / 100);
+    const currentRevenueNum = currentCustomersNum * avgSale;
+
+    // Website business calculations (improved metrics)
+    const websiteVisitorsNum = visitors * 1.5; // +50% from SEO
+    const websiteInquiryRate = Math.min(inquiryRate * 3, 15); // 3x conversion rate, capped at 15%
+    const websiteInquiriesNum = websiteVisitorsNum * (websiteInquiryRate / 100);
+    const websiteCustomersNum = websiteInquiriesNum * (closeRate / 100);
+    const websiteRevenueNum = websiteCustomersNum * avgSale;
+
+    // Calculate additional revenue and payback
+    const additionalRevenueNum = websiteRevenueNum - currentRevenueNum;
+    const websiteInvestment = 12500; // Average website cost
+    const paybackMonths = additionalRevenueNum > 0 ? Math.ceil(websiteInvestment / additionalRevenueNum) : 0;
+
+    // Update current business display
+    if (currentVisitors) currentVisitors.textContent = Math.round(visitors).toLocaleString();
+    if (currentInquiries) currentInquiries.textContent = Math.round(currentInquiriesNum);
+    if (currentCustomers) currentCustomers.textContent = Math.round(currentCustomersNum);
+    if (currentRevenue) currentRevenue.textContent = formatCurrency(currentRevenueNum);
+
+    // Update website business display
+    if (websiteVisitors) websiteVisitors.textContent = Math.round(websiteVisitorsNum).toLocaleString();
+    if (websiteInquiries) websiteInquiries.textContent = Math.round(websiteInquiriesNum);
+    if (websiteCustomers) websiteCustomers.textContent = Math.round(websiteCustomersNum);
+    if (websiteRevenue) websiteRevenue.textContent = formatCurrency(websiteRevenueNum);
+
+    // Update summary
+    if (additionalRevenue) {
+      additionalRevenue.textContent = formatCurrency(additionalRevenueNum);
+      additionalRevenue.style.color = additionalRevenueNum > 0 ? 'var(--color-primary)' : 'var(--color-text-secondary)';
+    }
+    
+    if (paybackPeriod) {
+      paybackPeriod.textContent = paybackMonths > 0 ? `${paybackMonths} months` : 'N/A';
+      paybackPeriod.style.color = paybackMonths > 0 ? 'var(--color-primary)' : 'var(--color-text-secondary)';
+    }
+  }
 
   function formatCurrency(amount) {
     return new Intl.NumberFormat('en-PH', {
@@ -280,56 +336,52 @@ function setupROICalculator() {
     }).format(amount).replace('PHP', '₱');
   }
 
-  function calculateROI() {
-    const leads = parseFloat(leadsInput.value) || 0;
-    const closeRate = parseFloat(closeRateInput.value) || 0;
-    const avgSale = parseFloat(avgSaleInput.value) || 0;
-    const cost = parseFloat(costInput.value) || 0;
-
-    const monthlyRevenue = leads * (closeRate / 100) * avgSale;
-    const annualRevenue = monthlyRevenue * 12;
-
-    if (monthlyRevenueDisplay) {
-      monthlyRevenueDisplay.textContent = formatCurrency(monthlyRevenue);
-    }
-    
-    if (annualRevenueDisplay) {
-      annualRevenueDisplay.textContent = formatCurrency(annualRevenue);
-    }
-
-    // Show ROI if cost is provided
-    if (cost > 0 && roiCard && roiPercentageDisplay) {
-      const annualCost = cost * 12;
-      const roi = ((annualRevenue - annualCost) / annualCost) * 100;
-      roiPercentageDisplay.textContent = roi.toFixed(0) + '%';
-      roiCard.style.display = 'block';
-    } else if (roiCard) {
-      roiCard.style.display = 'none';
-    }
-  }
-
-  // Add event listeners for real-time calculation
-  [leadsInput, closeRateInput, avgSaleInput, costInput].forEach(input => {
-    if (input) {
-      input.addEventListener('input', calculateROI);
-    }
+  // Add event listeners
+  inputs.forEach(input => {
+    input.addEventListener('input', calculateWebsiteROI);
+    input.addEventListener('change', calculateWebsiteROI);
   });
 
-  // Reset button
   if (resetBtn) {
     resetBtn.addEventListener('click', function() {
-      [leadsInput, closeRateInput, avgSaleInput, costInput].forEach(input => {
-        if (input) input.value = '';
+      inputs.forEach(input => {
+        input.value = '';
       });
-      if (monthlyRevenueDisplay) monthlyRevenueDisplay.textContent = '₱0';
-      if (annualRevenueDisplay) annualRevenueDisplay.textContent = '₱0';
-      if (roiPercentageDisplay) roiPercentageDisplay.textContent = '0%';
-      if (roiCard) roiCard.style.display = 'none';
+      
+      // Reset all displays
+      const elementsToReset = [
+        currentVisitors, currentInquiries, currentCustomers, currentRevenue,
+        websiteVisitors, websiteInquiries, websiteCustomers, websiteRevenue,
+        additionalRevenue, paybackPeriod
+      ];
+      
+      elementsToReset.forEach(element => {
+        if (element) {
+          if (element.id && element.id.includes('revenue')) {
+            element.textContent = '₱0';
+          } else if (element.id && element.id.includes('payback')) {
+            element.textContent = '0 months';
+          } else {
+            element.textContent = '0';
+          }
+          element.style.color = '';
+        }
+      });
     });
   }
 
-  // Initial calculation
-  calculateROI();
+  // Initialize with default values to show example
+  const visitorsInput = document.getElementById('current-visitors');
+  const inquiryInput = document.getElementById('inquiry-rate');
+  const closeInput = document.getElementById('close-rate');
+  const saleInput = document.getElementById('avg-sale');
+  
+  if (visitorsInput && !visitorsInput.value) visitorsInput.value = '500';
+  if (inquiryInput && !inquiryInput.value) inquiryInput.value = '2';
+  if (closeInput && !closeInput.value) closeInput.value = '30';
+  if (saleInput && !saleInput.value) saleInput.value = '5000';
+  
+  calculateWebsiteROI();
 }
 
 // ==========================================================================
